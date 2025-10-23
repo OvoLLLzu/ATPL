@@ -20,6 +20,11 @@ import com.example.testprep.ui.screens.TrainingScreen
 import com.example.testprep.ui.screens.MistakesScreen
 import com.example.testprep.ui.screens.StatsScreen
 import com.example.testprep.ui.screens.ResultScreen
+import androidx.compose.runtime.LaunchedEffect
+import com.example.testprep.data.QuestionRepository
+import com.example.testprep.parse.QuestionParser
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,6 +48,22 @@ fun App() {
     val navController = rememberNavController()
     TestPrepTheme {
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+            // Auto-import from assets on first launch if DB empty
+            LaunchedEffect(Unit) {
+                val repo = QuestionRepository(this@App as android.content.Context)
+                if (!repo.hasQuestions()) {
+                    val ctx = this@App as android.content.Context
+                    val text = withContext(Dispatchers.IO) {
+                        runCatching {
+                            ctx.assets.open("questions.txt").bufferedReader().use { it.readText() }
+                        }.getOrNull()
+                    }
+                    if (text != null) {
+                        val qs = QuestionParser.parse(text)
+                        repo.importQuestions(qs)
+                    }
+                }
+            }
             NavHost(navController = navController, startDestination = Routes.MENU) {
                 composable(Routes.MENU) { MenuScreen(navController) }
                 composable(Routes.IMPORT) { ImportScreen(navController) }

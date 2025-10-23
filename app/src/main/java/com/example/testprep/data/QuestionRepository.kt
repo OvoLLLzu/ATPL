@@ -25,6 +25,10 @@ class QuestionRepository(private val context: Context) {
         if (ids.isEmpty()) emptyList() else db.questionDao().getByIds(ids)
     }
 
+    suspend fun hasQuestions(): Boolean = withContext(Dispatchers.IO) {
+        db.questionDao().count() > 0
+    }
+
     suspend fun addMistakes(questionIds: List<Long>) = withContext(Dispatchers.IO) {
         db.mistakeDao().addAll(questionIds)
     }
