@@ -1,5 +1,5 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <style name="Theme.TestPreparationApp" parent="Theme.Material3.DayNight.NoActionBar">
-        <item name="android:statusBarColor">?attr/colorSurface</item>
+        <!-- Let Material3 manage surfaces; no direct attr reference here -->
     </style>
 </resources>

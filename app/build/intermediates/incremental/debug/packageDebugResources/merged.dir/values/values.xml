@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="ic_launcher_background">#121212</color>
+    <string name="app_name">Test Preparation</string>
+    <string name="back_to_menu">В меню</string>
+    <string name="menu_mistakes">РАБОТА НАД ОШИБКАМИ</string>
+    <string name="menu_stats">СТАТИСТИКА</string>
+    <string name="menu_test">ТЕСТ</string>
+    <string name="menu_training">ТРЕНИРОВКА</string>
+    <style name="Theme.TestPreparationApp" parent="Theme.Material3.DayNight.NoActionBar">
+        
+    </style>
+</resources>

@@ -47,11 +47,11 @@ sealed class Screen(val route: String) {
 @Composable
 fun App() {
     val navController = rememberNavController()
+    val ctx = LocalContext.current
     TestPrepTheme {
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
             // Auto-import from assets on first launch if DB empty
             LaunchedEffect(Unit) {
-                val ctx = LocalContext.current
                 val repo = QuestionRepository(ctx)
                 if (!repo.hasQuestions()) {
                     val text = withContext(Dispatchers.IO) {
