@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Test Preparation</string>
+    <string name="menu_test">ТЕСТ</string>
+    <string name="menu_training">ТРЕНИРОВКА</string>
+    <string name="menu_stats">СТАТИСТИКА</string>
+    <string name="menu_mistakes">РАБОТА НАД ОШИБКАМИ</string>
+    <string name="back_to_menu">В меню</string>
+</resources>
