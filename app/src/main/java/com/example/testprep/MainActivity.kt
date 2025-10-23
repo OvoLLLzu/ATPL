@@ -21,6 +21,7 @@ import com.example.testprep.ui.screens.MistakesScreen
 import com.example.testprep.ui.screens.StatsScreen
 import com.example.testprep.ui.screens.ResultScreen
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalContext
 import com.example.testprep.data.QuestionRepository
 import com.example.testprep.parse.QuestionParser
 import kotlinx.coroutines.Dispatchers
@@ -50,9 +51,9 @@ fun App() {
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
             // Auto-import from assets on first launch if DB empty
             LaunchedEffect(Unit) {
-                val repo = QuestionRepository(this@App as android.content.Context)
+                val ctx = LocalContext.current
+                val repo = QuestionRepository(ctx)
                 if (!repo.hasQuestions()) {
-                    val ctx = this@App as android.content.Context
                     val text = withContext(Dispatchers.IO) {
                         runCatching {
                             ctx.assets.open("questions.txt").bufferedReader().use { it.readText() }

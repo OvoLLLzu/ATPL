@@ -22,6 +22,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import com.example.testprep.ui.navigation.Routes
+import androidx.compose.ui.platform.LocalContext
+import com.example.testprep.data.QuestionRepository
 import com.example.testprep.ui.viewmodel.QuizMode
 import com.example.testprep.ui.viewmodel.QuizViewModel
 import com.example.testprep.ui.viewmodel.activityViewModel
@@ -110,10 +112,9 @@ fun StatsScreen(navController: NavHostController) {
 @Composable
 private fun StatsContent(appVm: QuizViewModel, navController: NavHostController) {
     // This is a simple one-shot fetch; a ViewModel for stats would be nicer, but reuse repo
-    val stats = androidx.compose.runtime.produceState(initialValue = com.example.testprep.data.Stats(0,0,0,0,0,0), appVm) {
-        value = appVm.run {
-            com.example.testprep.data.QuestionRepository(getApplication()).getStats()
-        }
+    val ctx = LocalContext.current
+    val stats = androidx.compose.runtime.produceState(initialValue = com.example.testprep.data.Stats(0,0,0,0,0,0), ctx) {
+        value = QuestionRepository(ctx).getStats()
     }.value
 
     Column(
