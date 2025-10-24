@@ -7,8 +7,6 @@ import com.example.testprep.data.QuestionRepository
 import com.example.testprep.data.entity.QuestionEntity
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.launch
 
 enum class QuizMode { TEST, TRAINING, MISTAKES }
@@ -22,11 +20,9 @@ data class QuizState(
     val selections: List<Int?> = emptyList(),
 )
 
-class QuizViewModel(app: Application, private val savedStateHandle: SavedStateHandle) : AndroidViewModel(app) {
+class QuizViewModel(app: Application) : AndroidViewModel(app) {
     private val repository = QuestionRepository(app)
-    private val _state = MutableStateFlow(
-        savedStateHandle.get<QuizState>("quiz_state") ?: QuizState()
-    )
+    private val _state = MutableStateFlow(QuizState())
     val state = _state.asStateFlow()
 
     private var mode: QuizMode = QuizMode.TEST
@@ -44,7 +40,6 @@ class QuizViewModel(app: Application, private val savedStateHandle: SavedStateHa
                 selections = List(qList.size) { null }
             )
             _state.value = newState
-            savedStateHandle["quiz_state"] = newState
         }
     }
 
@@ -56,7 +51,6 @@ class QuizViewModel(app: Application, private val savedStateHandle: SavedStateHa
         }
         val newState = s.copy(selectedIndex = index, selections = updated)
         _state.value = newState
-        savedStateHandle["quiz_state"] = newState
     }
 
     fun next() {
@@ -72,7 +66,6 @@ class QuizViewModel(app: Application, private val savedStateHandle: SavedStateHa
             finished = finished,
         )
         _state.value = newState
-        savedStateHandle["quiz_state"] = newState
     }
 
     fun commitResultsAndUpdateMistakes() {
