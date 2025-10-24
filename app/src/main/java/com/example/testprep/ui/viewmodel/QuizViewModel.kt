@@ -7,6 +7,8 @@ import com.example.testprep.data.QuestionRepository
 import com.example.testprep.data.entity.QuestionEntity
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.launch
 
 enum class QuizMode { TEST, TRAINING, MISTAKES }
@@ -20,9 +22,11 @@ data class QuizState(
     val selections: List<Int?> = emptyList(),
 )
 
-class QuizViewModel(app: Application) : AndroidViewModel(app) {
+class QuizViewModel(app: Application, private val savedStateHandle: SavedStateHandle) : AndroidViewModel(app) {
     private val repository = QuestionRepository(app)
-    private val _state = MutableStateFlow(QuizState())
+    private val _state = MutableStateFlow(
+        savedStateHandle.get<QuizState>("quiz_state") ?: QuizState()
+    )
     val state = _state.asStateFlow()
 
     private var mode: QuizMode = QuizMode.TEST
@@ -35,10 +39,12 @@ class QuizViewModel(app: Application) : AndroidViewModel(app) {
                 QuizMode.TRAINING -> repository.getAll().shuffled()
                 QuizMode.MISTAKES -> repository.getByIds(repository.getMistakeQuestionIds()).shuffled()
             }
-            _state.value = QuizState(
+            val newState = QuizState(
                 questions = qList,
                 selections = List(qList.size) { null }
             )
+            _state.value = newState
+            savedStateHandle["quiz_state"] = newState
         }
     }
 
@@ -48,7 +54,9 @@ class QuizViewModel(app: Application) : AndroidViewModel(app) {
         if (s.currentIndex in updated.indices) {
             updated[s.currentIndex] = index
         }
-        _state.value = s.copy(selectedIndex = index, selections = updated)
+        val newState = s.copy(selectedIndex = index, selections = updated)
+        _state.value = newState
+        savedStateHandle["quiz_state"] = newState
     }
 
     fun next() {
@@ -57,12 +65,14 @@ class QuizViewModel(app: Application) : AndroidViewModel(app) {
         val newCorrect = s.correctCount + if (isCorrect) 1 else 0
         val nextIndex = s.currentIndex + 1
         val finished = nextIndex >= s.questions.size
-        _state.value = s.copy(
+        val newState = s.copy(
             currentIndex = if (finished) s.currentIndex else nextIndex,
             selectedIndex = null,
             correctCount = newCorrect,
             finished = finished,
         )
+        _state.value = newState
+        savedStateHandle["quiz_state"] = newState
     }
 
     fun commitResultsAndUpdateMistakes() {

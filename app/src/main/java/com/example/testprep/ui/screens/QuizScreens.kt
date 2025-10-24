@@ -1,15 +1,22 @@
 package com.example.testprep.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -43,7 +50,11 @@ fun QuizScreen(navController: NavHostController, mode: QuizMode) {
     val vm: QuizViewModel = activityViewModel()
     val state by vm.state.collectAsState()
 
-    LaunchedEffect(mode) { vm.start(mode) }
+    LaunchedEffect(mode) {
+        if (vm.state.value.questions.isEmpty()) {
+            vm.start(mode)
+        }
+    }
 
     if (state.questions.isEmpty()) {
         EmptyState(navController)
@@ -51,8 +62,12 @@ fun QuizScreen(navController: NavHostController, mode: QuizMode) {
     }
 
     val q = state.questions[state.currentIndex]
+    val scroll = rememberScrollState()
     Column(
-        modifier = Modifier.fillMaxSize().padding(24.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp)
+            .verticalScroll(scroll),
         verticalArrangement = Arrangement.spacedBy(12.dp),
         horizontalAlignment = Alignment.Start
     ) {
@@ -83,16 +98,27 @@ fun QuizScreen(navController: NavHostController, mode: QuizMode) {
 private fun OptionTrain(index: Int, text: String, selected: Boolean, correct: Boolean, showFeedback: Boolean, answered: Boolean, onClick: () -> Unit) {
     val isGreen = showFeedback && answered && correct
     val isRed = showFeedback && answered && !correct && selected
-    val bg = when {
-        isGreen -> Color(0x3328A745)
-        isRed -> Color(0x33DC3545)
-        else -> Color.Transparent
+    val fillColor = when {
+        isGreen -> Color(0xFF28A745).copy(alpha = 0.25f)
+        isRed -> Color(0xFFDC3545).copy(alpha = 0.25f)
+        else -> MaterialTheme.colorScheme.surface
     }
-    val content: @Composable () -> Unit = { Text(text, color = Color.Unspecified) }
-    if (selected) {
-        Button(onClick = onClick, modifier = Modifier.background(bg)) { content() }
-    } else {
-        OutlinedButton(onClick = onClick, modifier = Modifier.background(bg)) { content() }
+    val borderColor = when {
+        isGreen -> Color(0xFF28A745)
+        isRed -> Color(0xFFDC3545)
+        selected -> MaterialTheme.colorScheme.primary
+        else -> MaterialTheme.colorScheme.outline
+    }
+
+    Surface(
+        color = fillColor,
+        shape = RoundedCornerShape(0.dp),
+        modifier = Modifier
+            .border(width = 1.dp, color = borderColor, shape = RoundedCornerShape(0.dp))
+            .clickable { onClick() }
+            .padding(12.dp)
+    ) {
+        Text(text)
     }
 }
 
